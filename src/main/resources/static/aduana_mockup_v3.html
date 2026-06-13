@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIIA - Sistema Integral de Interoperabilidad Aduanera</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #eef2f5;
+            color: #1e2a3e;
+            line-height: 1.5;
+        }
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #003366 0%, #002244 100%);
+            padding: 1rem;
+        }
+        .login-card {
+            background: white;
+            border-radius: 32px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        }
+        .login-card h2 {
+            color: #003366;
+            margin-bottom: 1rem;
+        }
+        .input-group {
+            margin: 1rem 0;
+            text-align: left;
+        }
+        .input-group label {
+            font-weight: 500;
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 16px;
+            font-size: 1rem;
+        }
+        button {
+            background: #003366;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover {
+            background: #002244;
+        }
+        .app-wrapper {
+            display: none;
+        }
+        header {
+            background: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #ffcc00;
+            flex-wrap: wrap;
+        }
+        .logo {
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: #003366;
+        }
+        .user-info {
+            background: #eef2f5;
+            padding: 0.5rem 1rem;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .card {
+            background: white;
+            border-radius: 28px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            border-left: 5px solid #ffcc00;
+            padding-left: 1rem;
+        }
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+        .form-group {
+            flex: 1;
+            min-width: 180px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.3rem;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid #cbd5e6;
+            border-radius: 14px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+        }
+        .pagination {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        .pagination button {
+            background: #eef2f5;
+            color: #1e2a3e;
+            padding: 0.4rem 0.8rem;
+        }
+        .alert {
+            padding: 0.75rem;
+            border-radius: 16px;
+            margin: 0.5rem 0;
+        }
+        .alert-success { background: #d1fae5; color: #065f46; }
+        .alert-error { background: #fee2e2; color: #991b1b; }
+        .alert-info { background: #dbeafe; color: #1e40af; }
+        .grid-2cols {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            font-size: 0.8rem;
+            color: #4a5b6e;
+        }
+        @media (max-width: 700px) {
+            .container { padding: 0 1rem; }
+            .form-row { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div id="loginScreen" class="login-container">
+    <div class="login-card">
+        <i class="fas fa-passport" style="font-size: 50px; color:#003366;"></i>
+        <h2>Sistema Integral de Automatización Aduanera</h2>
+        <p>Servicio Nacional de Aduanas</p>
+        <div class="input-group">
+            <label>Usuario</label>
+            <input type="text" id="loginUsername" placeholder="inspector" value="inspector">
+        </div>
+        <div class="input-group">
+            <label>Contraseña</label>
+            <input type="password" id="loginPassword" placeholder="••••" value="inspector123">
+        </div>
+        <button id="doLoginBtn">Ingresar</button>
+        <p style="margin-top: 1rem; font-size:0.8rem;">Credenciales: inspector / inspector123  |  admin / admin123</p>
+    </div>
+</div>
+
+<!-- Main App (oculto hasta login) -->
+<div id="appMain" class="app-wrapper">
+    <header>
+        <div class="logo"><i class="fas fa-shield-haltered"></i> SIIA | Paso Los Libertadores</div>
+        <div class="user-info">
+            <i class="fas fa-user-check"></i> <span id="userNameSpan">Inspector</span>
+            <button id="logoutBtn" style="background:#eef2f5; color:#1e2a3e;">Cerrar sesión</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Módulos principales en grilla -->
+        <div class="grid-2cols">
+            <!-- Registrar Pasajero -->
+            <div class="card">
+                <h3><i class="fas fa-user-plus"></i> Registrar Pasajero</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre completo</label>
+                        <input type="text" id="regNombre" placeholder="Ej: Juan Pérez">
+                    </div>
+                    <div class="form-group">
+                        <label>Nacionalidad</label>
+                        <input type="text" id="regNacionalidad" value="Chilena">
+                    </div>
+                    <div class="form-group">
+                        <label>RUN / Pasaporte</label>
+                        <input type="text" id="regDocumento" placeholder="12.345.678-9">
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha nacimiento</label>
+                        <input type="date" id="regFechaNac">
+                    </div>
+                    <div class="form-group">
+                        <button id="btnRegistrarPasajero">Registrar</button>
+                    </div>
+                </div>
+                <div id="registroMsg" class="alert" style="display:none;"></div>
+            </div>
+
+            <!-- Validación Menor -->
+            <div class="card">
+                <h3><i class="fas fa-child"></i> Validar Menor (RF-02)</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre menor</label>
+                        <input type="text" id="menorNombre" placeholder="Sofia Mendez">
+                    </div>
+                    <div class="form-group">
+                        <label>RUN / Pasaporte</label>
+                        <input type="text" id="menorRun" placeholder="25.123.456-7">
+                    </div>
+                    <div class="form-group">
+                        <label>N° Autorización notarial</label>
+                        <input type="text" id="menorAut" placeholder="NOT-2026-7823">
+                    </div>
+                    <div class="form-group">
+                        <button id="btnValidarMenor">Validar</button>
+                    </div>
+                </div>
+                <div id="menorMsg" class="alert" style="display:none;"></div>
+            </div>
+
+            <!-- Declaraciones SAG/PDI -->
+            <div class="card">
+                <h3><i class="fas fa-tree"></i> Declaraciones SAG / PDI</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>¿Porta alimentos?</label>
+                        <select id="declAlimentos">
+                            <option value="false">No</option>
+                            <option value="true">Sí</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>¿Porta mascota?</label>
+                        <select id="declMascota">
+                            <option value="false">No</option>
+                            <option value="true">Sí</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button id="btnDeclarar">Enviar</button>
+                    </div>
+                </div>
+                <div id="declMsg" class="alert" style="display:none;"></div>
+            </div>
+
+            <!-- Generar PDF Vehicular + Crear Trámite -->
+            <div class="card">
+                <h3><i class="fas fa-file-pdf"></i> Admisión Temporal Vehículos</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Patente</label>
+                        <input type="text" id="pdfPatente" placeholder="CL·TX45">
+                    </div>
+                    <div class="form-group">
+                        <label>Titular</label>
+                        <input type="text" id="pdfTitular" value="Gabriel Flores">
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo vehículo</label>
+                        <select id="pdfTipo">
+                            <option>Automóvil</option><option>Camioneta</option><option>Motocicleta</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button id="btnGenerarPDF">Generar PDF + Folio</button>
+                    </div>
+                </div>
+                <div id="pdfMsg" class="alert" style="display:none;"></div>
+            </div>
+
+            <!-- Consulta por Folio -->
+            <div class="card">
+                <h3><i class="fas fa-search"></i> Consultar Trámite por Folio</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Folio</label>
+                        <input type="text" id="folioConsulta" placeholder="Ej: FOL-1734567890123">
+                    </div>
+                    <div class="form-group">
+                        <button id="btnConsultarFolio">Consultar</button>
+                    </div>
+                </div>
+                <div id="folioResultado" class="alert" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- Listado de Pasajeros paginado -->
+        <div class="card">
+            <h3><i class="fas fa-users"></i> Pasajeros Registrados</h3>
+            <div id="pasajerosTabla"></div>
+            <div id="paginationPasajeros" class="pagination"></div>
+        </div>
+
+        <!-- Listado de Trámites paginado -->
+        <div class="card">
+            <h3><i class="fas fa-truck"></i> Trámites Vehiculares</h3>
+            <div id="tramitesTabla"></div>
+            <div id="paginationTramites" class="pagination"></div>
+        </div>
+    </div>
+    <footer>
+        SIIA - Sistema Integral de Interoperabilidad Aduanera | API REST con JWT
+    </footer>
+</div>
+
+<script>
+    // Configuración
+    const API_BASE = "http://localhost:8080/api/v1";
+    const AUTH_URL = "http://localhost:8080/api/auth/login";
+
+    let jwtToken = localStorage.getItem("jwt_token") || null;
+    let currentUser = "";
+
+    // Helper para peticiones autenticadas
+    async function authFetch(url, options = {}) {
+        if (!jwtToken) throw new Error("No autenticado");
+        const headers = {
+            'Content-Type': 'application/json',
+            ...options.headers,
+            'Authorization': `Bearer ${jwtToken}`
+        };
+        return fetch(url, { ...options, headers });
+    }
+
+    // Mostrar mensajes
+    function showMessage(divId, message, type = 'info') {
+        const div = document.getElementById(divId);
+        div.innerHTML = message;
+        div.className = `alert alert-${type}`;
+        div.style.display = 'block';
+        setTimeout(() => div.style.display = 'none', 5000);
+    }
+
+    // Login
+    document.getElementById('doLoginBtn').onclick = async () => {
+        const username = document.getElementById('loginUsername').value;
+        const password = document.getElementById('loginPassword').value;
+        try {
+            const res = await fetch(AUTH_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+            if (res.ok && data.status === 200) {
+                jwtToken = data.data.token;
+                localStorage.setItem('jwt_token', jwtToken);
+                currentUser = data.data.username;
+                document.getElementById('userNameSpan').innerText = currentUser;
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('appMain').style.display = 'block';
+                // Cargar listados iniciales
+                cargarPasajeros(0);
+                cargarTramites(0);
+            } else {
+                alert("Error: " + (data.message || "Credenciales inválidas"));
+            }
+        } catch (err) {
+            alert("Error de conexión: " + err.message);
+        }
+    };
+
+    document.getElementById('logoutBtn').onclick = () => {
+        localStorage.removeItem('jwt_token');
+        jwtToken = null;
+        document.getElementById('appMain').style.display = 'none';
+        document.getElementById('loginScreen').style.display = 'flex';
+    };
+
+    // Cargar pasajeros paginado
+    let currentPagePasajeros = 0;
+    async function cargarPasajeros(page) {
+        if (!jwtToken) return;
+        currentPagePasajeros = page;
+        try {
+            const res = await authFetch(`${API_BASE}/pasajeros?page=${page}&size=10&sort=nombre,asc`);
+            const data = await res.json();
+            if (res.ok && data.status === 200) {
+                const pageData = data.data;
+                const content = pageData.content;
+                const totalPages = pageData.totalPages;
+                let html = '<table><tr><th>ID</th><th>Nombre</th><th>Nacionalidad</th><th>Documento</th><th>Fecha Nac.</th></tr>';
+                content.forEach(p => {
+                    html += `<tr>
+                        <td>${p.id}</td>
+                        <td>${p.nombre}</td>
+                        <td>${p.nacionalidad}</td>
+                        <td>${p.documento}</td>
+                        <td>${p.fechaNacimiento}</td>
+                    </tr>`;
+                });
+                html += '</table>';
+                document.getElementById('pasajerosTabla').innerHTML = html;
+
+                // Paginación
+                let pagHtml = '';
+                for (let i = 0; i < totalPages; i++) {
+                    pagHtml += `<button class="page-btn" data-page="${i}">${i+1}</button>`;
+                }
+                document.getElementById('paginationPasajeros').innerHTML = pagHtml;
+                document.querySelectorAll('#paginationPasajeros .page-btn').forEach(btn => {
+                    btn.onclick = () => cargarPasajeros(parseInt(btn.dataset.page));
+                });
+            } else {
+                document.getElementById('pasajerosTabla').innerHTML = '<div class="alert alert-error">Error al cargar</div>';
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    // Cargar trámites paginado
+    let currentPageTramites = 0;
+    async function cargarTramites(page) {
+        if (!jwtToken) return;
+        currentPageTramites = page;
+        try {
+            const res = await authFetch(`${API_BASE}/tramites?page=${page}&size=10&sort=fecha,desc`);
+            const data = await res.json();
+            if (res.ok && data.status === 200) {
+                const pageData = data.data;
+                const content = pageData.content;
+                const totalPages = pageData.totalPages;
+                let html = '<table><tr><th>ID</th><th>Folio</th><th>Patente</th><th>Estado</th><th>Fecha</th></tr>';
+                content.forEach(t => {
+                    html += `<tr>
+                        <td>${t.id}</td>
+                        <td>${t.folio}</td>
+                        <td>${t.patente}</td>
+                        <td>${t.estado}</td>
+                        <td>${new Date(t.fecha).toLocaleString()}</td>
+                    </tr>`;
+                });
+                html += '</table>';
+                document.getElementById('tramitesTabla').innerHTML = html;
+                let pagHtml = '';
+                for (let i = 0; i < totalPages; i++) {
+                    pagHtml += `<button class="page-tramite-btn" data-page="${i}">${i+1}</button>`;
+                }
+                document.getElementById('paginationTramites').innerHTML = pagHtml;
+                document.querySelectorAll('#paginationTramites .page-tramite-btn').forEach(btn => {
+                    btn.onclick = () => cargarTramites(parseInt(btn.dataset.page));
+                });
+            }
+        } catch (err) {}
+    }
+
+    // Registrar pasajero
+    document.getElementById('btnRegistrarPasajero').onclick = async () => {
+        const nombre = document.getElementById('regNombre').value.trim();
+        const nacionalidad = document.getElementById('regNacionalidad').value.trim();
+        const documento = document.getElementById('regDocumento').value.trim();
+        const fechaNacimiento = document.getElementById('regFechaNac').value;
+        if (!nombre || !documento || !fechaNacimiento) {
+            showMessage('registroMsg', 'Complete nombre, documento y fecha', 'error');
+            return;
+        }
+        try {
+            const res = await authFetch(`${API_BASE}/pasajeros`, {
+                method: 'POST',
+                body: JSON.stringify({ nombre, nacionalidad, documento, fechaNacimiento })
+            });
+            const data = await res.json();
+            if (res.ok && data.status === 201) {
+                showMessage('registroMsg', `Pasajero ${data.data.nombre} registrado`, 'success');
+                document.getElementById('regNombre').value = '';
+                document.getElementById('regDocumento').value = '';
+                document.getElementById('regFechaNac').value = '';
+                cargarPasajeros(currentPagePasajeros);
+            } else {
+                showMessage('registroMsg', data.message || 'Error', 'error');
+            }
+        } catch (err) {
+            showMessage('registroMsg', err.message, 'error');
+        }
+    };
+
+    // Validar menor
+    document.getElementById('btnValidarMenor').onclick = async () => {
+        const nombre = document.getElementById('menorNombre').value;
+        const run = document.getElementById('menorRun').value;
+        const autorizacionNotarial = document.getElementById('menorAut').value;
+        try {
+            const res = await authFetch(`${API_BASE}/menores/validar`, {
+                method: 'POST',
+                body: JSON.stringify({ nombre, run, autorizacionNotarial })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                showMessage('menorMsg', data.data.mensaje, data.data.valida ? 'success' : 'error');
+            } else {
+                showMessage('menorMsg', data.message || 'Error', 'error');
+            }
+        } catch (err) {
+            showMessage('menorMsg', err.message, 'error');
+        }
+    };
+
+    // Declaraciones
+    document.getElementById('btnDeclarar').onclick = async () => {
+        const portaAlimentos = document.getElementById('declAlimentos').value === 'true';
+        const portaMascota = document.getElementById('declMascota').value === 'true';
+        try {
+            const res = await authFetch(`${API_BASE}/declaraciones`, {
+                method: 'POST',
+                body: JSON.stringify({ portaAlimentos, portaMascota })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                showMessage('declMsg', data.data.mensaje, 'success');
+            } else {
+                showMessage('declMsg', data.message || 'Error', 'error');
+            }
+        } catch (err) {
+            showMessage('declMsg', err.message, 'error');
+        }
+    };
+
+    // Generar PDF (y crear trámite automáticamente)
+    document.getElementById('btnGenerarPDF').onclick = async () => {
+        const patente = document.getElementById('pdfPatente').value.trim();
+        const titular = document.getElementById('pdfTitular').value.trim();
+        const tipoVehiculo = document.getElementById('pdfTipo').value;
+        if (!patente || !titular) {
+            showMessage('pdfMsg', 'Complete patente y titular', 'error');
+            return;
+        }
+        try {
+            const res = await authFetch(`${API_BASE}/pdf/vehiculo`, {
+                method: 'POST',
+                body: JSON.stringify({ patente, titular, tipoVehiculo, folio: null })
+            });
+            if (res.ok) {
+                // Obtener folio desde el nombre del archivo (content-disposition)
+                const cd = res.headers.get('Content-Disposition');
+                let folio = 'desconocido';
+                if (cd) {
+                    const match = cd.match(/formulario_vehiculo_(.+)\.pdf/);
+                    if (match) folio = match[1];
+                }
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `formulario_vehiculo_${folio}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+                showMessage('pdfMsg', `PDF generado. Folio: ${folio}`, 'success');
+                cargarTramites(currentPageTramites);
+            } else {
+                const errorText = await res.text();
+                showMessage('pdfMsg', `Error: ${errorText}`, 'error');
+            }
+        } catch (err) {
+            showMessage('pdfMsg', err.message, 'error');
+        }
+    };
+
+    // Consultar folio
+    document.getElementById('btnConsultarFolio').onclick = async () => {
+        const folio = document.getElementById('folioConsulta').value.trim();
+        if (!folio) {
+            showMessage('folioResultado', 'Ingrese un folio', 'error');
+            return;
+        }
+        try {
+            const res = await authFetch(`${API_BASE}/tramites/${folio}`);
+            const data = await res.json();
+            if (res.ok && data.status === 200) {
+                const t = data.data;
+                showMessage('folioResultado', `Folio: ${t.folio}<br>Patente: ${t.patente}<br>Estado: ${t.estado}<br>Fecha: ${new Date(t.fecha).toLocaleString()}`, 'success');
+            } else {
+                showMessage('folioResultado', data.message || 'No encontrado', 'error');
+            }
+        } catch (err) {
+            showMessage('folioResultado', err.message, 'error');
+        }
+    };
+
+    // Si ya había token al cargar, mostrar app directamente
+    if (jwtToken) {
+        // intentar validar token con una llamada simple
+        fetch(`${API_BASE}/pasajeros?page=0&size=1`, {
+            headers: { 'Authorization': `Bearer ${jwtToken}` }
+        }).then(res => {
+            if (res.status === 401) {
+                localStorage.removeItem('jwt_token');
+                jwtToken = null;
+                document.getElementById('loginScreen').style.display = 'flex';
+            } else {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('appMain').style.display = 'block';
+                cargarPasajeros(0);
+                cargarTramites(0);
+            }
+        }).catch(() => {
+            document.getElementById('loginScreen').style.display = 'flex';
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: siia
+
+  datasource:
+    url: jdbc:mysql://localhost:3399/siia_db?useSSL=false&serverTimezone=America/Santiago&allowPublicKeyRetrieval=true
+    username: siia_user
+    password: siia_pass
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+        ddl-auto: none
+    database-platform: org.hibernate.dialect.MySQLDialect
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: 8080                           # ← Para que coincida con tu frontend
+
+logging:
+  level:
+    root: INFO
+    '[cl.duocuc.siia]': DEBUG             # ← Logs específicos de tu proyecto
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# Swagger / OpenAPI (opcional, pero útil para pruebas)
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: always
