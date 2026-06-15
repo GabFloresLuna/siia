@@ -67,8 +67,12 @@
             cursor: pointer;
             transition: 0.2s;
         }
-        button:hover {
+        button:hover:not(:disabled) {
             background: #002244;
+        }
+        button:disabled {
+            background: #9aaebf;
+            cursor: not-allowed;
         }
         .app-wrapper {
             display: none;
@@ -163,10 +167,22 @@
             padding: 0.75rem;
             border-radius: 16px;
             margin: 0.5rem 0;
+            display: none;
         }
-        .alert-success { background: #d1fae5; color: #065f46; }
-        .alert-error { background: #fee2e2; color: #991b1b; }
-        .alert-info { background: #dbeafe; color: #1e40af; }
+        .alert-success { background: #d1fae5; color: #065f46; border-left: 4px solid #10b981; }
+        .alert-error { background: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444; }
+        .alert-info { background: #dbeafe; color: #1e40af; border-left: 4px solid #3b82f6; }
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
         .grid-2cols {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -205,7 +221,7 @@
     </div>
 </div>
 
-<!-- Main App (oculto hasta login) -->
+<!-- Main App -->
 <div id="appMain" class="app-wrapper">
     <header>
         <div class="logo"><i class="fas fa-shield-haltered"></i> SIIA | Paso Los Libertadores</div>
@@ -216,135 +232,77 @@
     </header>
 
     <div class="container">
-        <!-- Módulos principales en grilla -->
         <div class="grid-2cols">
             <!-- Registrar Pasajero -->
             <div class="card">
                 <h3><i class="fas fa-user-plus"></i> Registrar Pasajero</h3>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>Nombre completo</label>
-                        <input type="text" id="regNombre" placeholder="Ej: Juan Pérez">
-                    </div>
-                    <div class="form-group">
-                        <label>Nacionalidad</label>
-                        <input type="text" id="regNacionalidad" value="Chilena">
-                    </div>
-                    <div class="form-group">
-                        <label>RUN / Pasaporte</label>
-                        <input type="text" id="regDocumento" placeholder="12.345.678-9">
-                    </div>
-                    <div class="form-group">
-                        <label>Fecha nacimiento</label>
-                        <input type="date" id="regFechaNac">
-                    </div>
-                    <div class="form-group">
-                        <button id="btnRegistrarPasajero">Registrar</button>
-                    </div>
+                    <div class="form-group"><label>Nombre completo</label><input type="text" id="regNombre" placeholder="Ej: Juan Pérez"></div>
+                    <div class="form-group"><label>Nacionalidad</label><input type="text" id="regNacionalidad" value="Chilena"></div>
+                    <div class="form-group"><label>RUN / Pasaporte</label><input type="text" id="regDocumento" placeholder="12.345.678-9"></div>
+                    <div class="form-group"><label>Fecha nacimiento</label><input type="date" id="regFechaNac"></div>
+                    <div class="form-group"><button id="btnRegistrarPasajero">Registrar</button></div>
                 </div>
-                <div id="registroMsg" class="alert" style="display:none;"></div>
+                <div id="registroMsg" class="alert"></div>
             </div>
 
-            <!-- Validación Menor -->
+            <!-- Validar Menor -->
             <div class="card">
                 <h3><i class="fas fa-child"></i> Validar Menor (RF-02)</h3>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>Nombre menor</label>
-                        <input type="text" id="menorNombre" placeholder="Sofia Mendez">
-                    </div>
-                    <div class="form-group">
-                        <label>RUN / Pasaporte</label>
-                        <input type="text" id="menorRun" placeholder="25.123.456-7">
-                    </div>
-                    <div class="form-group">
-                        <label>N° Autorización notarial</label>
-                        <input type="text" id="menorAut" placeholder="NOT-2026-7823">
-                    </div>
-                    <div class="form-group">
-                        <button id="btnValidarMenor">Validar</button>
-                    </div>
+                    <div class="form-group"><label>Nombre menor</label><input type="text" id="menorNombre" placeholder="Sofia Mendez"></div>
+                    <div class="form-group"><label>RUN / Pasaporte</label><input type="text" id="menorRun" placeholder="25.123.456-7"></div>
+                    <div class="form-group"><label>N° Autorización notarial</label><input type="text" id="menorAut" placeholder="NOT-2026-7823"></div>
+                    <div class="form-group"><button id="btnValidarMenor">Validar</button></div>
                 </div>
-                <div id="menorMsg" class="alert" style="display:none;"></div>
+                <div id="menorMsg" class="alert"></div>
             </div>
 
             <!-- Declaraciones SAG/PDI -->
             <div class="card">
                 <h3><i class="fas fa-tree"></i> Declaraciones SAG / PDI</h3>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>¿Porta alimentos?</label>
-                        <select id="declAlimentos">
-                            <option value="false">No</option>
-                            <option value="true">Sí</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>¿Porta mascota?</label>
-                        <select id="declMascota">
-                            <option value="false">No</option>
-                            <option value="true">Sí</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <button id="btnDeclarar">Enviar</button>
-                    </div>
+                    <div class="form-group"><label>¿Porta alimentos?</label><select id="declAlimentos"><option value="false">No</option><option value="true">Sí</option></select></div>
+                    <div class="form-group"><label>¿Porta mascota?</label><select id="declMascota"><option value="false">No</option><option value="true">Sí</option></select></div>
+                    <div class="form-group"><button id="btnDeclarar">Enviar</button></div>
                 </div>
-                <div id="declMsg" class="alert" style="display:none;"></div>
+                <div id="declMsg" class="alert"></div>
             </div>
 
-            <!-- Generar PDF Vehicular + Crear Trámite -->
+            <!-- Generar PDF Vehicular -->
             <div class="card">
                 <h3><i class="fas fa-file-pdf"></i> Admisión Temporal Vehículos</h3>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>Patente</label>
-                        <input type="text" id="pdfPatente" placeholder="CL·TX45">
-                    </div>
-                    <div class="form-group">
-                        <label>Titular</label>
-                        <input type="text" id="pdfTitular" value="Gabriel Flores">
-                    </div>
-                    <div class="form-group">
-                        <label>Tipo vehículo</label>
-                        <select id="pdfTipo">
-                            <option>Automóvil</option><option>Camioneta</option><option>Motocicleta</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <button id="btnGenerarPDF">Generar PDF + Folio</button>
-                    </div>
+                    <div class="form-group"><label>Patente</label><input type="text" id="pdfPatente" placeholder="CL·TX45"></div>
+                    <div class="form-group"><label>Titular</label><input type="text" id="pdfTitular" value="Gabriel Flores"></div>
+                    <div class="form-group"><label>Tipo vehículo</label><select id="pdfTipo"><option>Automóvil</option><option>Camioneta</option><option>Motocicleta</option></select></div>
+                    <div class="form-group"><button id="btnGenerarPDF">Generar PDF + Folio</button></div>
                 </div>
-                <div id="pdfMsg" class="alert" style="display:none;"></div>
+                <div id="pdfMsg" class="alert"></div>
             </div>
 
             <!-- Consulta por Folio -->
             <div class="card">
                 <h3><i class="fas fa-search"></i> Consultar Trámite por Folio</h3>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>Folio</label>
-                        <input type="text" id="folioConsulta" placeholder="Ej: FOL-1734567890123">
-                    </div>
-                    <div class="form-group">
-                        <button id="btnConsultarFolio">Consultar</button>
-                    </div>
+                    <div class="form-group"><label>Folio</label><input type="text" id="folioConsulta" placeholder="Ej: FOL-1734567890123"></div>
+                    <div class="form-group"><button id="btnConsultarFolio">Consultar</button></div>
                 </div>
-                <div id="folioResultado" class="alert" style="display:none;"></div>
+                <div id="folioResultado" class="alert"></div>
             </div>
         </div>
 
-        <!-- Listado de Pasajeros paginado -->
+        <!-- Tabla de Pasajeros -->
         <div class="card">
             <h3><i class="fas fa-users"></i> Pasajeros Registrados</h3>
-            <div id="pasajerosTabla"></div>
+            <div id="pasajerosTabla"><div class="alert alert-info" style="display:block;">Cargando...</div></div>
             <div id="paginationPasajeros" class="pagination"></div>
         </div>
 
-        <!-- Listado de Trámites paginado -->
+        <!-- Tabla de Trámites -->
         <div class="card">
             <h3><i class="fas fa-truck"></i> Trámites Vehiculares</h3>
-            <div id="tramitesTabla"></div>
+            <div id="tramitesTabla"><div class="alert alert-info" style="display:block;">Cargando...</div></div>
             <div id="paginationTramites" class="pagination"></div>
         </div>
     </div>
@@ -355,13 +313,25 @@
 
 <script>
     // Configuración
-    const API_BASE = "http://localhost:8080/api/v1";
-    const AUTH_URL = "http://localhost:8080/api/auth/login";
+    const API_BASE = "/api/v1";
+    const AUTH_URL = "/api/auth/login";
 
     let jwtToken = localStorage.getItem("jwt_token") || null;
     let currentUser = "";
+    let currentPagePasajeros = 0;
+    let currentPageTramites = 0;
 
-    // Helper para peticiones autenticadas
+    // Helper para mostrar mensajes
+    function showMessage(divId, message, type = 'info') {
+        const div = document.getElementById(divId);
+        if (!div) return;
+        div.innerHTML = message;
+        div.className = `alert alert-${type}`;
+        div.style.display = 'block';
+        setTimeout(() => div.style.display = 'none', 5000);
+    }
+
+    // Helper para peticiones autenticadas con manejo de 401
     async function authFetch(url, options = {}) {
         if (!jwtToken) throw new Error("No autenticado");
         const headers = {
@@ -369,22 +339,106 @@
             ...options.headers,
             'Authorization': `Bearer ${jwtToken}`
         };
-        return fetch(url, { ...options, headers });
+        const response = await fetch(url, { ...options, headers });
+        if (response.status === 401) {
+            // Token inválido o expirado
+            localStorage.removeItem('jwt_token');
+            jwtToken = null;
+            showMessage('registroMsg', 'Sesión expirada. Por favor, vuelva a iniciar sesión.', 'error');
+            setTimeout(() => {
+                document.getElementById('appMain').style.display = 'none';
+                document.getElementById('loginScreen').style.display = 'flex';
+            }, 1500);
+            throw new Error("Unauthorized");
+        }
+        return response;
     }
 
-    // Mostrar mensajes
-    function showMessage(divId, message, type = 'info') {
-        const div = document.getElementById(divId);
-        div.innerHTML = message;
-        div.className = `alert alert-${type}`;
-        div.style.display = 'block';
-        setTimeout(() => div.style.display = 'none', 5000);
+    // Cargar pasajeros paginado
+    async function cargarPasajeros(page) {
+        if (!jwtToken) return;
+        currentPagePasajeros = page;
+        try {
+            const res = await authFetch(`${API_BASE}/pasajeros?page=${page}&size=10&sort=nombre,asc`);
+            const data = await res.json();
+            if (res.ok && data.status === 200) {
+                const pageData = data.data;
+                const content = pageData.content;
+                const totalPages = pageData.totalPages;
+                let html = '<table><th>ID</th><th>Nombre</th><th>Nacionalidad</th><th>Documento</th><th>Fecha Nac.</th></tr>';
+                if (content.length === 0) html += '<tr><td colspan="5">No hay pasajeros registrados</td></tr>';
+                content.forEach(p => {
+                    html += `<tr><td>${p.id}</td><td>${escapeHtml(p.nombre)}</td><td>${escapeHtml(p.nacionalidad)}</td><td>${escapeHtml(p.documento)}</td><td>${p.fechaNacimiento}</td></tr>`;
+                });
+                html += '</table>';
+                document.getElementById('pasajerosTabla').innerHTML = html;
+
+                let pagHtml = '';
+                for (let i = 0; i < totalPages; i++) {
+                    pagHtml += `<button class="page-btn" data-page="${i}">${i+1}</button>`;
+                }
+                document.getElementById('paginationPasajeros').innerHTML = pagHtml;
+                document.querySelectorAll('#paginationPasajeros .page-btn').forEach(btn => {
+                    btn.onclick = () => cargarPasajeros(parseInt(btn.dataset.page));
+                });
+            } else {
+                document.getElementById('pasajerosTabla').innerHTML = '<div class="alert alert-error">Error al cargar pasajeros</div>';
+            }
+        } catch (err) {
+            if (!err.message.includes("Unauthorized")) {
+                document.getElementById('pasajerosTabla').innerHTML = '<div class="alert alert-error">Error de conexión</div>';
+            }
+        }
+    }
+
+    // Cargar trámites paginado
+    async function cargarTramites(page) {
+        if (!jwtToken) return;
+        currentPageTramites = page;
+        try {
+            const res = await authFetch(`${API_BASE}/tramites?page=${page}&size=10&sort=fecha,desc`);
+            const data = await res.json();
+            if (res.ok && data.status === 200) {
+                const pageData = data.data;
+                const content = pageData.content;
+                const totalPages = pageData.totalPages;
+                let html = '<tr><th>ID</th><th>Folio</th><th>Patente</th><th>Estado</th><th>Fecha</th></tr>';
+                if (content.length === 0) html += '<tr><td colspan="5">No hay trámites registrados</td></tr>';
+                content.forEach(t => {
+                    html += `<tr><td>${t.id}</td><td>${escapeHtml(t.folio)}</td><td>${escapeHtml(t.patente)}</td><td>${escapeHtml(t.estado)}</td><td>${new Date(t.fecha).toLocaleString()}</td></tr>`;
+                });
+                html += '</table>';
+                document.getElementById('tramitesTabla').innerHTML = html;
+
+                let pagHtml = '';
+                for (let i = 0; i < totalPages; i++) {
+                    pagHtml += `<button class="page-tramite-btn" data-page="${i}">${i+1}</button>`;
+                }
+                document.getElementById('paginationTramites').innerHTML = pagHtml;
+                document.querySelectorAll('#paginationTramites .page-tramite-btn').forEach(btn => {
+                    btn.onclick = () => cargarTramites(parseInt(btn.dataset.page));
+                });
+            }
+        } catch (err) {}
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
     }
 
     // Login
     document.getElementById('doLoginBtn').onclick = async () => {
         const username = document.getElementById('loginUsername').value;
         const password = document.getElementById('loginPassword').value;
+        const btn = document.getElementById('doLoginBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<div class="loading-spinner"></div> Ingresando...';
         try {
             const res = await fetch(AUTH_URL, {
                 method: 'POST',
@@ -399,14 +453,17 @@
                 document.getElementById('userNameSpan').innerText = currentUser;
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('appMain').style.display = 'block';
-                // Cargar listados iniciales
-                cargarPasajeros(0);
-                cargarTramites(0);
+                await cargarPasajeros(0);
+                await cargarTramites(0);
             } else {
-                alert("Error: " + (data.message || "Credenciales inválidas"));
+                showMessage('registroMsg', data.message || 'Credenciales inválidas', 'error');
+                btn.disabled = false;
+                btn.innerHTML = 'Ingresar';
             }
         } catch (err) {
-            alert("Error de conexión: " + err.message);
+            showMessage('registroMsg', 'Error de conexión con el servidor', 'error');
+            btn.disabled = false;
+            btn.innerHTML = 'Ingresar';
         }
     };
 
@@ -417,94 +474,19 @@
         document.getElementById('loginScreen').style.display = 'flex';
     };
 
-    // Cargar pasajeros paginado
-    let currentPagePasajeros = 0;
-    async function cargarPasajeros(page) {
-        if (!jwtToken) return;
-        currentPagePasajeros = page;
-        try {
-            const res = await authFetch(`${API_BASE}/pasajeros?page=${page}&size=10&sort=nombre,asc`);
-            const data = await res.json();
-            if (res.ok && data.status === 200) {
-                const pageData = data.data;
-                const content = pageData.content;
-                const totalPages = pageData.totalPages;
-                let html = '<table><tr><th>ID</th><th>Nombre</th><th>Nacionalidad</th><th>Documento</th><th>Fecha Nac.</th></tr>';
-                content.forEach(p => {
-                    html += `<tr>
-                        <td>${p.id}</td>
-                        <td>${p.nombre}</td>
-                        <td>${p.nacionalidad}</td>
-                        <td>${p.documento}</td>
-                        <td>${p.fechaNacimiento}</td>
-                    </tr>`;
-                });
-                html += '</table>';
-                document.getElementById('pasajerosTabla').innerHTML = html;
-
-                // Paginación
-                let pagHtml = '';
-                for (let i = 0; i < totalPages; i++) {
-                    pagHtml += `<button class="page-btn" data-page="${i}">${i+1}</button>`;
-                }
-                document.getElementById('paginationPasajeros').innerHTML = pagHtml;
-                document.querySelectorAll('#paginationPasajeros .page-btn').forEach(btn => {
-                    btn.onclick = () => cargarPasajeros(parseInt(btn.dataset.page));
-                });
-            } else {
-                document.getElementById('pasajerosTabla').innerHTML = '<div class="alert alert-error">Error al cargar</div>';
-            }
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
-    // Cargar trámites paginado
-    let currentPageTramites = 0;
-    async function cargarTramites(page) {
-        if (!jwtToken) return;
-        currentPageTramites = page;
-        try {
-            const res = await authFetch(`${API_BASE}/tramites?page=${page}&size=10&sort=fecha,desc`);
-            const data = await res.json();
-            if (res.ok && data.status === 200) {
-                const pageData = data.data;
-                const content = pageData.content;
-                const totalPages = pageData.totalPages;
-                let html = '<table><tr><th>ID</th><th>Folio</th><th>Patente</th><th>Estado</th><th>Fecha</th></tr>';
-                content.forEach(t => {
-                    html += `<tr>
-                        <td>${t.id}</td>
-                        <td>${t.folio}</td>
-                        <td>${t.patente}</td>
-                        <td>${t.estado}</td>
-                        <td>${new Date(t.fecha).toLocaleString()}</td>
-                    </tr>`;
-                });
-                html += '</table>';
-                document.getElementById('tramitesTabla').innerHTML = html;
-                let pagHtml = '';
-                for (let i = 0; i < totalPages; i++) {
-                    pagHtml += `<button class="page-tramite-btn" data-page="${i}">${i+1}</button>`;
-                }
-                document.getElementById('paginationTramites').innerHTML = pagHtml;
-                document.querySelectorAll('#paginationTramites .page-tramite-btn').forEach(btn => {
-                    btn.onclick = () => cargarTramites(parseInt(btn.dataset.page));
-                });
-            }
-        } catch (err) {}
-    }
-
-    // Registrar pasajero
+    // Registrar pasajero y recargar tabla
     document.getElementById('btnRegistrarPasajero').onclick = async () => {
         const nombre = document.getElementById('regNombre').value.trim();
         const nacionalidad = document.getElementById('regNacionalidad').value.trim();
         const documento = document.getElementById('regDocumento').value.trim();
         const fechaNacimiento = document.getElementById('regFechaNac').value;
         if (!nombre || !documento || !fechaNacimiento) {
-            showMessage('registroMsg', 'Complete nombre, documento y fecha', 'error');
+            showMessage('registroMsg', 'Complete nombre, documento y fecha de nacimiento', 'error');
             return;
         }
+        const btn = document.getElementById('btnRegistrarPasajero');
+        btn.disabled = true;
+        btn.innerHTML = '<div class="loading-spinner"></div> Registrando...';
         try {
             const res = await authFetch(`${API_BASE}/pasajeros`, {
                 method: 'POST',
@@ -512,16 +494,20 @@
             });
             const data = await res.json();
             if (res.ok && data.status === 201) {
-                showMessage('registroMsg', `Pasajero ${data.data.nombre} registrado`, 'success');
+                showMessage('registroMsg', `Pasajero ${data.data.nombre} registrado exitosamente`, 'success');
                 document.getElementById('regNombre').value = '';
                 document.getElementById('regDocumento').value = '';
                 document.getElementById('regFechaNac').value = '';
-                cargarPasajeros(currentPagePasajeros);
+                await cargarPasajeros(currentPagePasajeros); // recargar tabla
             } else {
-                showMessage('registroMsg', data.message || 'Error', 'error');
+                showMessage('registroMsg', data.message || 'Error al registrar', 'error');
             }
         } catch (err) {
-            showMessage('registroMsg', err.message, 'error');
+            if (!err.message.includes("Unauthorized"))
+                showMessage('registroMsg', 'Error de conexión o servidor', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Registrar';
         }
     };
 
@@ -530,6 +516,13 @@
         const nombre = document.getElementById('menorNombre').value;
         const run = document.getElementById('menorRun').value;
         const autorizacionNotarial = document.getElementById('menorAut').value;
+        if (!nombre || !run || !autorizacionNotarial) {
+            showMessage('menorMsg', 'Complete todos los campos', 'error');
+            return;
+        }
+        const btn = document.getElementById('btnValidarMenor');
+        btn.disabled = true;
+        btn.innerHTML = '<div class="loading-spinner"></div> Validando...';
         try {
             const res = await authFetch(`${API_BASE}/menores/validar`, {
                 method: 'POST',
@@ -539,10 +532,13 @@
             if (res.ok) {
                 showMessage('menorMsg', data.data.mensaje, data.data.valida ? 'success' : 'error');
             } else {
-                showMessage('menorMsg', data.message || 'Error', 'error');
+                showMessage('menorMsg', data.message || 'Error en validación', 'error');
             }
         } catch (err) {
-            showMessage('menorMsg', err.message, 'error');
+            showMessage('menorMsg', 'Error de conexión', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Validar';
         }
     };
 
@@ -550,6 +546,9 @@
     document.getElementById('btnDeclarar').onclick = async () => {
         const portaAlimentos = document.getElementById('declAlimentos').value === 'true';
         const portaMascota = document.getElementById('declMascota').value === 'true';
+        const btn = document.getElementById('btnDeclarar');
+        btn.disabled = true;
+        btn.innerHTML = '<div class="loading-spinner"></div> Enviando...';
         try {
             const res = await authFetch(`${API_BASE}/declaraciones`, {
                 method: 'POST',
@@ -559,14 +558,17 @@
             if (res.ok) {
                 showMessage('declMsg', data.data.mensaje, 'success');
             } else {
-                showMessage('declMsg', data.message || 'Error', 'error');
+                showMessage('declMsg', data.message || 'Error al procesar', 'error');
             }
         } catch (err) {
-            showMessage('declMsg', err.message, 'error');
+            showMessage('declMsg', 'Error de conexión', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Enviar';
         }
     };
 
-    // Generar PDF (y crear trámite automáticamente)
+    // Generar PDF (y recargar trámites)
     document.getElementById('btnGenerarPDF').onclick = async () => {
         const patente = document.getElementById('pdfPatente').value.trim();
         const titular = document.getElementById('pdfTitular').value.trim();
@@ -575,13 +577,15 @@
             showMessage('pdfMsg', 'Complete patente y titular', 'error');
             return;
         }
+        const btn = document.getElementById('btnGenerarPDF');
+        btn.disabled = true;
+        btn.innerHTML = '<div class="loading-spinner"></div> Generando PDF...';
         try {
             const res = await authFetch(`${API_BASE}/pdf/vehiculo`, {
                 method: 'POST',
                 body: JSON.stringify({ patente, titular, tipoVehiculo, folio: null })
             });
             if (res.ok) {
-                // Obtener folio desde el nombre del archivo (content-disposition)
                 const cd = res.headers.get('Content-Disposition');
                 let folio = 'desconocido';
                 if (cd) {
@@ -598,13 +602,17 @@
                 a.remove();
                 URL.revokeObjectURL(url);
                 showMessage('pdfMsg', `PDF generado. Folio: ${folio}`, 'success');
-                cargarTramites(currentPageTramites);
+                await cargarTramites(currentPageTramites); // recargar tabla de trámites
             } else {
                 const errorText = await res.text();
                 showMessage('pdfMsg', `Error: ${errorText}`, 'error');
             }
         } catch (err) {
-            showMessage('pdfMsg', err.message, 'error');
+            if (!err.message.includes("Unauthorized"))
+                showMessage('pdfMsg', 'Error al generar PDF', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Generar PDF + Folio';
         }
     };
 
@@ -615,6 +623,9 @@
             showMessage('folioResultado', 'Ingrese un folio', 'error');
             return;
         }
+        const btn = document.getElementById('btnConsultarFolio');
+        btn.disabled = true;
+        btn.innerHTML = '<div class="loading-spinner"></div> Consultando...';
         try {
             const res = await authFetch(`${API_BASE}/tramites/${folio}`);
             const data = await res.json();
@@ -625,30 +636,33 @@
                 showMessage('folioResultado', data.message || 'No encontrado', 'error');
             }
         } catch (err) {
-            showMessage('folioResultado', err.message, 'error');
+            if (!err.message.includes("Unauthorized"))
+                showMessage('folioResultado', 'Error de conexión', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Consultar';
         }
     };
 
-    // Si ya había token al cargar, mostrar app directamente
-    if (jwtToken) {
-        // intentar validar token con una llamada simple
-        fetch(`${API_BASE}/pasajeros?page=0&size=1`, {
-            headers: { 'Authorization': `Bearer ${jwtToken}` }
-        }).then(res => {
-            if (res.status === 401) {
+    // Verificar sesión al cargar
+    (async () => {
+        if (jwtToken) {
+            try {
+                const res = await fetch(`${API_BASE}/pasajeros?page=0&size=1`, {
+                    headers: { 'Authorization': `Bearer ${jwtToken}` }
+                });
+                if (res.status === 401) throw new Error("Token inválido");
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('appMain').style.display = 'block';
+                await cargarPasajeros(0);
+                await cargarTramites(0);
+            } catch (err) {
                 localStorage.removeItem('jwt_token');
                 jwtToken = null;
                 document.getElementById('loginScreen').style.display = 'flex';
-            } else {
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('appMain').style.display = 'block';
-                cargarPasajeros(0);
-                cargarTramites(0);
             }
-        }).catch(() => {
-            document.getElementById('loginScreen').style.display = 'flex';
-        });
-    }
+        }
+    })();
 </script>
 </body>
 </html>
